@@ -2,7 +2,7 @@
 
 // ── ⚙️ 填入你的設定 ────────────────────────────────────────────────────────────
 var GAS_URL = 'https://script.google.com/macros/s/AKfycbxI5mRR6WSHeat1tpUFU6_a9FbjWXNcLF6b3lnmQSA5as7NZkZOnF6iwbe0zs1-Tt0q/exec';   // GAS 部署後的 Web App URL
-var LIFF_ID = 'YOUR_LIFF_ID_HERE';   // LINE Developer Console 的 LIFF ID
+var LIFF_ID = '2010528907-DEMW7vq5';   // LINE Developer Console 的 LIFF ID
 // ─────────────────────────────────────────────────────────────────────────────
 
 var DEV = location.search.includes('dev=true');
