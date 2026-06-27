@@ -6,7 +6,7 @@ var LIFF_ID = '2010528907-DEMW7vq5';   // LINE Developer Console 的 LIFF ID
 // ─────────────────────────────────────────────────────────────────────────────
 
 var DEV = location.search.includes('dev=true');
-var VERSION = 'v4';
+var VERSION = 'v5';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var S = {
@@ -260,15 +260,17 @@ function openSheet(title, bodyHtml) {
     };
     ov.addEventListener('click', function(e) { if (e.target === ov) { ov.remove(); resolve(null); } });
     document.body.appendChild(ov);
-    // Reliable checkbox toggle for mobile WebView (pointer-events:none on input, handle on parent)
     ov.querySelectorAll('.cb-row').forEach(function(row) {
       var cb = row.querySelector('input[type="checkbox"]');
       if (!cb) return;
       if (cb.checked) row.classList.add('cb-checked');
-      row.addEventListener('click', function() {
+      function toggle(e) {
+        e.preventDefault();
         cb.checked = !cb.checked;
         row.classList.toggle('cb-checked', cb.checked);
-      });
+      }
+      row.addEventListener('touchend', toggle, false); // immediate on mobile, also cancels click
+      row.addEventListener('click', toggle);           // desktop fallback
     });
   });
 }
@@ -293,9 +295,12 @@ function esc(s) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function memberPic(uid) {
-  if (!S.bill) return '';
-  var m = S.bill.members.find(function(x){ return x.userId === uid; });
-  return m ? (m.pictureUrl || '') : '';
+  var driveUrl = '';
+  if (S.bill) {
+    var m = S.bill.members.find(function(x){ return x.userId === uid; });
+    driveUrl = m ? (m.pictureUrl || '') : '';
+  }
+  return driveUrl || (uid === S.userId ? (S.pictureUrl || '') : '');
 }
 
 function inlineAv(uid) {
