@@ -1,5 +1,7 @@
-// ── 設定：填入你的 Google Drive 資料夾 ID ────────────────────────────────────
-var FOLDER_ID = '1TYyRJMZedPRFfF9fuRRVXSRn2m-o6AsE';
+// ── 設定 ─────────────────────────────────────────────────────────────────────
+var FOLDER_ID              = '1TYyRJMZedPRFfF9fuRRVXSRn2m-o6AsE';
+var LINE_CHANNEL_TOKEN     = 'YOUR_CHANNEL_ACCESS_TOKEN';  // LINE Developer Console
+var LINE_LIFF_ID           = 'YOUR_LIFF_ID';               // 同 app.js 的 LIFF_ID
 
 // ── Entry points ──────────────────────────────────────────────────────────────
 function doGet(e) {
@@ -19,6 +21,10 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  // LINE webhook sends JSON; our app sends form-encoded
+  if (e.postData && e.postData.type === 'application/json') {
+    return handleLineWebhook(e);
+  }
   try {
     var p = e.parameter;
     var result;
@@ -367,4 +373,50 @@ function apiUpdateAvatar(p) {
     } catch (e) { /* skip */ }
   }
   return { ok: true, driveUrl: driveUrl };
+}
+
+// ── LINE Bot Webhook ──────────────────────────────────────────────────────────
+
+function handleLineWebhook(e) {
+  var events = JSON.parse(e.postData.contents).events || [];
+  events.forEach(function(ev) {
+    if (ev.type !== 'message' || ev.message.type !== 'text') return;
+    if (ev.message.text.indexOf('開啟帳單表') === -1) return;
+    if (!ev.replyToken) return;
+    replyLiff(ev.replyToken);
+  });
+  return ContentService.createTextOutput('OK').setMimeType(ContentService.MimeType.TEXT);
+}
+
+function replyLiff(replyToken) {
+  var liffUrl = 'https://liff.line.me/' + LINE_LIFF_ID;
+  UrlFetchApp.fetch('https://api.line.me/v2/bot/message/reply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + LINE_CHANNEL_TOKEN,
+    },
+    payload: JSON.stringify({
+      replyToken: replyToken,
+      messages: [{
+        type: 'flex',
+        altText: '開啟分帳帳單',
+        contents: {
+          type: 'bubble',
+          body: {
+            type: 'box', layout: 'vertical',
+            contents: [
+              { type: 'text', text: '💰 分帳帳單', weight: 'bold', size: 'xl', color: '#1a1a2e' },
+              { type: 'text', text: '點擊下方按鈕開啟群組帳單', size: 'sm', color: '#666666', margin: 'sm' },
+              {
+                type: 'button', margin: 'lg', style: 'primary', color: '#6366f1',
+                action: { type: 'uri', label: '開啟帳單', uri: liffUrl }
+              }
+            ]
+          }
+        }
+      }]
+    }),
+    muteHttpExceptions: true,
+  });
 }
