@@ -635,7 +635,7 @@ function init() {
       var ctx = liff.getContext();
       S.groupId = (ctx && ctx.groupId) || params.get('groupId');
       if (!S.groupId) {
-        $app().innerHTML = '<div class="error-screen"><div class="ei">⚠️</div><p>請從 LINE 群組中開啟此頁面</p></div>';
+        $app().innerHTML = '<div class="error-screen"><div class="ei">⚠️</div><p>請從 LINE 群組中開啟此頁面</p><pre style="font-size:10px;text-align:left;margin-top:12px;padding:8px;background:rgba(0,0,0,.06);border-radius:8px;overflow:auto;white-space:pre-wrap">' + esc(JSON.stringify(ctx, null, 2)) + '</pre></div>';
         return;
       }
       api = buildRealApi();
