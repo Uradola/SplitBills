@@ -6,7 +6,7 @@ var LIFF_ID = '2010528907-DEMW7vq5';   // LINE Developer Console 的 LIFF ID
 // ─────────────────────────────────────────────────────────────────────────────
 
 var DEV = location.search.includes('dev=true');
-var VERSION = 'v7';
+var VERSION = 'v8';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var S = {
@@ -260,23 +260,6 @@ function openSheet(title, bodyHtml) {
     };
     ov.addEventListener('click', function(e) { if (e.target === ov) { ov.remove(); resolve(null); } });
     document.body.appendChild(ov);
-    ov.querySelectorAll('.cb-row').forEach(function(row) {
-      var cb = row.querySelector('input[type="checkbox"]');
-      if (!cb) return;
-      if (cb.checked) row.classList.add('cb-checked');
-      var _t = false;
-      row.addEventListener('touchend', function(e) {
-        _t = true;
-        e.preventDefault();
-        cb.checked = !cb.checked;
-        row.classList.toggle('cb-checked', cb.checked);
-      }, false);
-      row.addEventListener('click', function() {
-        if (_t) { _t = false; return; } // touchend already handled it
-        cb.checked = !cb.checked;
-        row.classList.toggle('cb-checked', cb.checked);
-      });
-    });
   });
 }
 
@@ -595,7 +578,7 @@ function itemFormHTML(item) {
   }).join('');
   var checks = ms.map(function(m) {
     var chk = !item || item.participantIds.indexOf(m.userId) !== -1 ? ' checked' : '';
-    return '<div class="cb-row' + (chk ? ' cb-checked' : '') + '"><input type="checkbox" name="participantIds" value="' + m.userId + '"' + chk + ' /><span class="cb-box">✓</span>' + inlineAv(m.userId) + '<span>' + esc(m.displayName) + '</span></div>';
+    return '<label class="cb-row"><input type="checkbox" class="cb-input" name="participantIds" value="' + m.userId + '"' + chk + ' /><span class="cb-box">✓</span><span>' + esc(m.displayName) + '</span></label>';
   }).join('');
   return '<div class="field"><label>描述 *</label><input name="description" required maxlength="60" placeholder="例：晚餐" value="' + esc(item ? item.description : '') + '" /></div>' +
     '<div class="field"><label>金額 (NT$) *</label><input name="amount" type="number" min="0" step="1" required placeholder="0" value="' + (item ? item.amount : '') + '" /></div>' +
