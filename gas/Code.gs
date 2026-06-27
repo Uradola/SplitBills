@@ -383,14 +383,15 @@ function handleLineWebhook(e) {
     if (ev.type !== 'message' || ev.message.type !== 'text') return;
     if (ev.message.text.indexOf('開啟帳單表') === -1) return;
     if (!ev.replyToken) return;
-    replyLiff(ev.replyToken);
+    var groupId = ev.source.groupId || ev.source.roomId || '';
+    replyLiff(ev.replyToken, groupId);
   });
   return ContentService.createTextOutput('OK').setMimeType(ContentService.MimeType.TEXT);
 }
 
-function replyLiff(replyToken) {
-  var liffUrl = 'https://liff.line.me/' + LINE_LIFF_ID;
-  UrlFetchApp.fetch('https://api.line.me/v2/bot/message/reply', {
+function replyLiff(replyToken, groupId) {
+  var liffUrl = 'https://liff.line.me/' + LINE_LIFF_ID + (groupId ? '?groupId=' + groupId : '');
+  var res = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -419,4 +420,5 @@ function replyLiff(replyToken) {
     }),
     muteHttpExceptions: true,
   });
+  console.log('LINE API status:', res.getResponseCode(), res.getContentText());
 }
