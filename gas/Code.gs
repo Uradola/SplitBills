@@ -1,6 +1,6 @@
 // ── 設定 ─────────────────────────────────────────────────────────────────────
 var FOLDER_ID              = '1TYyRJMZedPRFfF9fuRRVXSRn2m-o6AsE';
-var LINE_CHANNEL_TOKEN     = 'q7DVFzDsul1esqt+YecsvVYM0SXCbGoieDr1jYQlGAXfkzAe1Obgn6FbRRvjb5x6hMsgPia68tMoCEcybaPrlVSHj2s/KfX8eByyd4l7bh1C/Bovm4+uS9M3yuX1wAMlOXeiGeS99J/Ubrej4zs5aAdB04t89/1O/w1cDnyilFU=';  // LINE Developer Console
+var LINE_CHANNEL_TOKEN     = PropertiesService.getScriptProperties().getProperty('LINE_CHANNEL_TOKEN');  // 設在 GAS「指令碼屬性」
 var LINE_LIFF_ID           = '2010528907-DEMW7vq5';               // 同 app.js 的 LIFF_ID
 
 // ── Entry points ──────────────────────────────────────────────────────────────
