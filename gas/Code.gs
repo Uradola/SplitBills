@@ -390,7 +390,7 @@ function handleLineWebhook(e) {
 }
 
 function replyLiff(replyToken, groupId) {
-  var liffUrl = 'https://liff.line.me/' + LINE_LIFF_ID + (groupId ? '?groupId=' + groupId : '');
+  var liffUrl = 'https://liff.line.me/' + LINE_LIFF_ID + '?groupId=' + groupId + '&t=' + Date.now();
   var res = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST',
     headers: {
