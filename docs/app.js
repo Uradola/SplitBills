@@ -6,7 +6,7 @@ var LIFF_ID = '2010528907-DEMW7vq5';   // LINE Developer Console 的 LIFF ID
 // ─────────────────────────────────────────────────────────────────────────────
 
 var DEV = location.search.includes('dev=true');
-var VERSION = 'v5';
+var VERSION = 'v6';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var S = {
@@ -264,13 +264,18 @@ function openSheet(title, bodyHtml) {
       var cb = row.querySelector('input[type="checkbox"]');
       if (!cb) return;
       if (cb.checked) row.classList.add('cb-checked');
-      function toggle(e) {
+      var _t = false;
+      row.addEventListener('touchend', function(e) {
+        _t = true;
         e.preventDefault();
         cb.checked = !cb.checked;
         row.classList.toggle('cb-checked', cb.checked);
-      }
-      row.addEventListener('touchend', toggle, false); // immediate on mobile, also cancels click
-      row.addEventListener('click', toggle);           // desktop fallback
+      }, false);
+      row.addEventListener('click', function() {
+        if (_t) { _t = false; return; } // touchend already handled it
+        cb.checked = !cb.checked;
+        row.classList.toggle('cb-checked', cb.checked);
+      });
     });
   });
 }
@@ -306,8 +311,9 @@ function memberPic(uid) {
 function inlineAv(uid) {
   var pic = memberPic(uid);
   var name = memberName(uid);
-  if (pic) return '<img src="' + esc(pic) + '" style="width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;flex-shrink:0" onerror="this.style.display=\'none\'" />';
-  return '<span style="width:18px;height:18px;border-radius:50%;background:var(--primary-soft);color:var(--primary-text);font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:4px;flex-shrink:0">' + initial(name) + '</span>';
+  var base = 'width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:4px;flex-shrink:0;';
+  if (pic) return '<span style="' + base + 'background:var(--primary-soft) url(' + esc(pic) + ') center/cover no-repeat"></span>';
+  return '<span style="' + base + 'background:var(--primary-soft);color:var(--primary-text);font-size:9px;font-weight:700">' + initial(name) + '</span>';
 }
 
 function memberName(uid) {
