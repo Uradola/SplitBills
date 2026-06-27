@@ -560,7 +560,7 @@ function itemFormHTML(item) {
   }).join('');
   var checks = ms.map(function(m) {
     var chk = !item || item.participantIds.indexOf(m.userId) !== -1 ? ' checked' : '';
-    return '<label class="cb-row"><input type="checkbox" name="participantIds" value="' + m.userId + '"' + chk + ' /><span>' + esc(m.displayName) + '</span></label>';
+    return '<div class="cb-row" onclick="var i=this.querySelector(\'input\');i.checked=!i.checked"><input type="checkbox" name="participantIds" value="' + m.userId + '"' + chk + ' style="pointer-events:none" /><span>' + esc(m.displayName) + '</span></div>';
   }).join('');
   return '<div class="field"><label>描述 *</label><input name="description" required maxlength="60" placeholder="例：晚餐" value="' + esc(item ? item.description : '') + '" /></div>' +
     '<div class="field"><label>金額 (NT$) *</label><input name="amount" type="number" min="0" step="1" required placeholder="0" value="' + (item ? item.amount : '') + '" /></div>' +
