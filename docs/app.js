@@ -606,6 +606,23 @@ function loadScript(src) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+function renderGroupInput() {
+  $app().innerHTML = headerHTML({ title: '選擇群組' }) +
+    '<main class="main"><div class="glass" style="border-radius:var(--radius);padding:24px;margin-top:16px">' +
+    '<p style="font-size:14px;color:var(--text-2);margin-bottom:16px">LINE 未提供群組資訊，請輸入群組代號（同一群組的人用相同代號）：</p>' +
+    '<div class="field"><label>群組代號</label><input id="gid-input" placeholder="例：my-group-2024" style="font-size:16px" /></div>' +
+    '<button class="btn btn-primary" id="gid-ok" style="width:100%;justify-content:center;margin-top:8px">進入</button>' +
+    '</div></main>';
+  document.getElementById('gid-ok').onclick = function() {
+    var val = document.getElementById('gid-input').value.trim();
+    if (!val) { toast('請輸入群組代號', 'error'); return; }
+    S.groupId = val;
+    api = buildRealApi();
+    loadList();
+    if (S.pictureUrl) api.updateAvatar(S.pictureUrl).catch(function() {});
+  };
+}
+
 function init() {
   var params = new URLSearchParams(location.search);
 
@@ -635,7 +652,7 @@ function init() {
       var ctx = liff.getContext();
       S.groupId = (ctx && ctx.groupId) || params.get('groupId');
       if (!S.groupId) {
-        $app().innerHTML = '<div class="error-screen"><div class="ei">⚠️</div><p>請從 LINE 群組中開啟此頁面</p><pre style="font-size:10px;text-align:left;margin-top:12px;padding:8px;background:rgba(0,0,0,.06);border-radius:8px;overflow:auto;white-space:pre-wrap">' + esc(JSON.stringify(ctx, null, 2)) + '</pre></div>';
+        renderGroupInput();
         return;
       }
       api = buildRealApi();
