@@ -6,7 +6,7 @@ var LIFF_ID = '2010528907-DEMW7vq5';   // LINE Developer Console 的 LIFF ID
 // ─────────────────────────────────────────────────────────────────────────────
 
 var DEV = location.search.includes('dev=true');
-var VERSION = 'v8';
+var VERSION = 'v9';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var S = {
@@ -291,12 +291,19 @@ function memberPic(uid) {
   return driveUrl || (uid === S.userId ? (S.pictureUrl || '') : '');
 }
 
+function _avFallback(img) {
+  var sp = document.createElement('span');
+  sp.style.cssText = 'width:20px;height:20px;border-radius:50%;background:#e0e7ff;color:#4f46e5;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px';
+  sp.textContent = img.dataset.i || '?';
+  img.parentNode.replaceChild(sp, img);
+}
 function inlineAv(uid) {
   var pic = memberPic(uid);
   var name = memberName(uid);
-  var base = 'width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:4px;flex-shrink:0;';
-  if (pic) return '<span style="' + base + 'background:var(--primary-soft) url(' + esc(pic) + ') center/cover no-repeat"></span>';
-  return '<span style="' + base + 'background:var(--primary-soft);color:var(--primary-text);font-size:9px;font-weight:700">' + initial(name) + '</span>';
+  var init = initial(name);
+  var sp = 'width:20px;height:20px;border-radius:50%;background:#e0e7ff;color:#4f46e5;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px';
+  if (pic) return '<img src="' + esc(pic) + '" data-i="' + init + '" style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;margin-right:4px;vertical-align:middle" onerror="_avFallback(this)" />';
+  return '<span style="' + sp + '">' + init + '</span>';
 }
 
 function memberName(uid) {
