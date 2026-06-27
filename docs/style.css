@@ -272,7 +272,7 @@ body {
   padding: 8px 20px calc(24px + var(--safe-b));
   box-shadow: 0 -8px 40px rgba(0,0,0,.12);
   animation: slide-up .22s cubic-bezier(0.4,0,0.2,1);
-  max-height: 92vh; overflow-y: auto;
+  max-height: 92vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 @keyframes slide-up { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
 .sheet-handle {
@@ -319,6 +319,8 @@ body {
   display: flex; align-items: center; gap: 10px;
   padding: 9px 12px; border-radius: var(--radius-sm);
   background: rgba(255,255,255,.55); cursor: pointer; transition: background var(--ease);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none;
 }
 .cb-row:has(input:checked) { background: var(--primary-soft); }
 .cb-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--primary); flex-shrink: 0; }
