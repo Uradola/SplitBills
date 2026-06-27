@@ -6,7 +6,7 @@ var LIFF_ID = '2010528907-DEMW7vq5';   // LINE Developer Console 的 LIFF ID
 // ─────────────────────────────────────────────────────────────────────────────
 
 var DEV = location.search.includes('dev=true');
-var VERSION = 'v3';
+var VERSION = 'v4';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var S = {
@@ -260,6 +260,16 @@ function openSheet(title, bodyHtml) {
     };
     ov.addEventListener('click', function(e) { if (e.target === ov) { ov.remove(); resolve(null); } });
     document.body.appendChild(ov);
+    // Reliable checkbox toggle for mobile WebView (pointer-events:none on input, handle on parent)
+    ov.querySelectorAll('.cb-row').forEach(function(row) {
+      var cb = row.querySelector('input[type="checkbox"]');
+      if (!cb) return;
+      if (cb.checked) row.classList.add('cb-checked');
+      row.addEventListener('click', function() {
+        cb.checked = !cb.checked;
+        row.classList.toggle('cb-checked', cb.checked);
+      });
+    });
   });
 }
 
@@ -282,6 +292,19 @@ function esc(s) {
   return String(s || '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function memberPic(uid) {
+  if (!S.bill) return '';
+  var m = S.bill.members.find(function(x){ return x.userId === uid; });
+  return m ? (m.pictureUrl || '') : '';
+}
+
+function inlineAv(uid) {
+  var pic = memberPic(uid);
+  var name = memberName(uid);
+  if (pic) return '<img src="' + esc(pic) + '" style="width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;flex-shrink:0" onerror="this.style.display=\'none\'" />';
+  return '<span style="width:18px;height:18px;border-radius:50%;background:var(--primary-soft);color:var(--primary-text);font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:4px;flex-shrink:0">' + initial(name) + '</span>';
+}
+
 function memberName(uid) {
   if (!S.bill) return uid;
   var m = S.bill.members.find(function(m){ return m.userId === uid; });
@@ -382,10 +405,10 @@ function loadBill(id) {
 
 function itemCard(item, locked) {
   var pName = memberName(item.payerId);
-  var pNames = item.participantIds.map(function(u){ return '<span class="participant-chip">' + esc(memberName(u)) + '</span>'; }).join('');
+  var pNames = item.participantIds.map(function(u){ return '<span class="participant-chip">' + inlineAv(u) + esc(memberName(u)) + '</span>'; }).join('');
   return '<div class="card item-card glass">' +
     '<div class="item-top"><div class="item-name">' + esc(item.description) + '</div><div class="item-amount">' + fmt(item.amount) + '</div></div>' +
-    '<div class="item-meta"><span>付款：</span><span class="payer-chip">' + esc(pName) + '</span><span>分攤：</span>' + pNames + '</div>' +
+    '<div class="item-meta"><span>付款：</span><span class="payer-chip">' + inlineAv(item.payerId) + esc(pName) + '</span><span>分攤：</span>' + pNames + '</div>' +
     (!locked ? '<div class="item-actions"><button class="icon-btn edit" data-act="edit-item" data-id="' + item.itemId + '" title="編輯">✏️</button><button class="icon-btn del" data-act="del-item" data-id="' + item.itemId + '" data-name="' + esc(item.description) + '" title="刪除">🗑</button></div>' : '') +
     '</div>';
 }
@@ -501,11 +524,11 @@ function renderSettlement(showLock) {
     '<main class="main">' +
     '<div class="settle-card glass"><div class="settle-section-title">轉帳清單（最少 ' + transfers.length + ' 筆）</div>' +
     (transfers.length === 0 ? '<p class="settle-empty">✅ 所有人都平帳了！</p>' :
-      transfers.map(function(t){ return '<div class="transfer-row"><span class="t-from">' + esc(t.fromName) + '</span><span class="t-arrow">→</span><span class="t-to">' + esc(t.toName) + '</span><span class="t-amount">' + fmt(t.amount) + '</span></div>'; }).join('')) +
+      transfers.map(function(t){ return '<div class="transfer-row"><span class="t-from">' + inlineAv(t.from) + esc(t.fromName) + '</span><span class="t-arrow">→</span><span class="t-to">' + inlineAv(t.to) + esc(t.toName) + '</span><span class="t-amount">' + fmt(t.amount) + '</span></div>'; }).join('')) +
     '</div><div class="settle-card glass"><div class="settle-section-title">個人餘額</div>' +
     balances.map(function(b) {
       var cls = b.amount > 0 ? 'b-pos' : b.amount < 0 ? 'b-neg' : 'b-zero';
-      return '<div class="balance-row"><span class="b-name">' + esc(b.displayName) + '</span><span class="b-amount ' + cls + '">' + (b.amount > 0 ? '+' : '') + fmt(b.amount) + '</span></div>';
+      return '<div class="balance-row"><span class="b-name">' + inlineAv(b.userId) + esc(b.displayName) + '</span><span class="b-amount ' + cls + '">' + (b.amount > 0 ? '+' : '') + fmt(b.amount) + '</span></div>';
     }).join('') + '</div>' +
     (showLock ? '<div style="margin-top:20px;display:flex;gap:10px"><button class="btn btn-ghost" id="s-back" style="flex:1;justify-content:center">返回帳單</button><button class="btn btn-warn" id="s-lock" style="flex:1;justify-content:center">🔒 確認鎖定</button></div>' : '') +
     '</main>';
@@ -561,7 +584,7 @@ function itemFormHTML(item) {
   }).join('');
   var checks = ms.map(function(m) {
     var chk = !item || item.participantIds.indexOf(m.userId) !== -1 ? ' checked' : '';
-    return '<div class="cb-row" onclick="var i=this.querySelector(\'input\');i.checked=!i.checked"><input type="checkbox" name="participantIds" value="' + m.userId + '"' + chk + ' style="pointer-events:none" /><span>' + esc(m.displayName) + '</span></div>';
+    return '<div class="cb-row"><input type="checkbox" name="participantIds" value="' + m.userId + '"' + chk + ' style="pointer-events:none" />' + inlineAv(m.userId) + '<span>' + esc(m.displayName) + '</span></div>';
   }).join('');
   return '<div class="field"><label>描述 *</label><input name="description" required maxlength="60" placeholder="例：晚餐" value="' + esc(item ? item.description : '') + '" /></div>' +
     '<div class="field"><label>金額 (NT$) *</label><input name="amount" type="number" min="0" step="1" required placeholder="0" value="' + (item ? item.amount : '') + '" /></div>' +
