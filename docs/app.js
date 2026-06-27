@@ -6,6 +6,7 @@ var LIFF_ID = '2010528907-DEMW7vq5';   // LINE Developer Console 的 LIFF ID
 // ─────────────────────────────────────────────────────────────────────────────
 
 var DEV = location.search.includes('dev=true');
+var VERSION = 'v3';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var S = {
@@ -329,7 +330,7 @@ function billCard(b, joined) {
 function renderList() {
   S.view = 'list';
   var j = S.bills.joined, nj = S.bills.notJoined;
-  $app().innerHTML = headerHTML({ title: '分帳帳單', sub: DEV ? '示範模式' : '群組帳單管理' }) +
+  $app().innerHTML = headerHTML({ title: '分帳帳單 ' + VERSION, sub: DEV ? '示範模式' : '群組帳單管理' }) +
     '<main class="main">' +
     '<section class="section"><div class="section-head"><h2>我的帳單</h2><span class="badge">' + j.length + '</span></div>' +
     '<div>' + (j.length === 0 ? '<p class="empty">尚未加入任何帳單</p>' : j.map(function(b){ return billCard(b, true); }).join('')) + '</div></section>' +
